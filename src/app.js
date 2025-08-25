@@ -5,6 +5,7 @@ import { userRouter } from "./routes/user.routes.js";
 import { itemRouter } from "./routes/itemsInfo.routes.js";
 const app = express();
 
+console.log("CORS_ORIGIN =", process.env.CORS_ORIGIN);
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN, 

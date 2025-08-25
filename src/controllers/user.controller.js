@@ -66,18 +66,9 @@ const signUpUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User already registered");
   }
 
-  const hashedPassword = await bcrypt.hash(password,10)
+  
+  const token = crypto.randomBytes(32).toString("hex");
 
-  const token = jwt.sign(
-  { email,
-    name,
-    phone,
-    hashedPassword
-   },  // only keep what you need
-  process.env.ACCESS_TOKEN_SECRET,
-  { expiresIn: "1d" }   // token valid for 1 day
-);
-    // console.log('The token is ',token);
   // 3. Save email + credentials temporarily in EmailVerification collection
   await EmailVerification.create({
     userEmail: email,
@@ -88,7 +79,6 @@ const signUpUser = asyncHandler(async (req, res) => {
 
   // 4. Construct verification link
   const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-  // console.log(verificationLink);
   //  console.log('The token is ',token);
   // 5. Send verification email
   await sendEmail({
@@ -106,40 +96,41 @@ const signUpUser = asyncHandler(async (req, res) => {
 
 const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.body;
-
+   console.log("Backend received token:", token);
   if (!token) {
     throw new ApiError(400, "Verification token missing");
   }
-
-  let decoded;
-  try {
-    decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  } catch (err) {
+const record = await EmailVerification.findOne({ token });
+  if (!record || record.expiresAt < new Date()) {
     throw new ApiError(400, "Invalid or expired verification link");
   }
 
-  // Check if user already exists
-  const isPresent = await User.findOne({ email: decoded.email });
-  if (isPresent) {
-    throw new ApiError(400, "User already exists");
-  }
 
-  // Create the user
+  
+    const isPresent = await User.findOne({ email: record.userEmail });
+
+     if(isPresent){
+      throw new ApiError(400,'User already exists');
+     }
+
+  // Create the user in the main User collection
   const user = await User.create({
-    name: decoded.name,
-    email: decoded.email,
-    phone: decoded.phone,
-    password: decoded.hashedPassword,
+    name: record.credentials.name,
+    email: record.userEmail,
+    phone: record.credentials.phone,
+    password : record.credentials.password,
     isVerified: true,
   });
+
+  // Delete verification record
+  await EmailVerification.deleteOne({ token });
 
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
   if (!createdUser) {
-    throw new ApiError(500, "Something went wrong while creating user");
+    throw new ApiError(500, "Something happened while creating User");
   }
-
 
   res
     .status(201)
@@ -179,6 +170,8 @@ const loginUser = asyncHandler(async (req, res) => {
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
+
+  console.log("user logged successfully");
 
   res
     .status(200)
