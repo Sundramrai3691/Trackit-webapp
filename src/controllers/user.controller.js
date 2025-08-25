@@ -13,6 +13,7 @@ import { sendEmail } from "../utils/emails.js";
 import { Otp } from "../models/otp.modles.js";
 import { EmailVerification } from "../models/EmailVerification.models.js";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 const options = {
   httpOnly: true,
@@ -65,8 +66,18 @@ const signUpUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User already registered");
   }
 
-  const token = crypto.randomBytes(32).toString("hex");
-     console.log('The token is ',token);
+  const hashedPassword = await bcrypt.hash(password,10)
+
+  const token = jwt.sign(
+  { email,
+    name,
+    phone,
+    hashedPassword
+   },  // only keep what you need
+  process.env.ACCESS_TOKEN_SECRET,
+  { expiresIn: "1d" }   // token valid for 1 day
+);
+    // console.log('The token is ',token);
   // 3. Save email + credentials temporarily in EmailVerification collection
   await EmailVerification.create({
     userEmail: email,
@@ -77,6 +88,7 @@ const signUpUser = asyncHandler(async (req, res) => {
 
   // 4. Construct verification link
   const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+  // console.log(verificationLink);
   //  console.log('The token is ',token);
   // 5. Send verification email
   await sendEmail({
@@ -93,41 +105,46 @@ const signUpUser = asyncHandler(async (req, res) => {
 });
 
 const verifyEmail = asyncHandler(async (req, res) => {
-  const  {token}  = req.body;
+  const { token } = req.body;
 
-  const record = await EmailVerification.findOne({ token });
-  if (!record || record.expiresAt < new Date()) {
+  if (!token) {
+    throw new ApiError(400, "Verification token missing");
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  } catch (err) {
     throw new ApiError(400, "Invalid or expired verification link");
   }
 
-    const isPresent = await User.findOne({ email: record.userEmail });
+  // Check if user already exists
+  const isPresent = await User.findOne({ email: decoded.email });
+  if (isPresent) {
+    throw new ApiError(400, "User already exists");
+  }
 
-     if(isPresent){
-      throw new ApiError(400,'User already exists');
-     }
-
-  // Create the user in the main User collection
+  // Create the user
   const user = await User.create({
-    name: record.credentials.name,
-    email: record.userEmail,
-    phone: record.credentials.phone,
-    password : record.credentials.password,
+    name: decoded.name,
+    email: decoded.email,
+    phone: decoded.phone,
+    password: decoded.hashedPassword,
     isVerified: true,
   });
-
-  // Delete verification record
-  await EmailVerification.deleteOne({ token });
 
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
   if (!createdUser) {
-    throw new ApiError(500, "Something happened while creating User");
+    throw new ApiError(500, "Something went wrong while creating user");
   }
+
 
   res
     .status(201)
     .json(new ApiResponse(201, createdUser, "User created successfully"));
+  
 });
 
 // Login controller
