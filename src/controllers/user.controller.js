@@ -159,10 +159,6 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
 
-  if (!/^\d{10}$/.test(phone)) {
-    throw new ApiError(400, "Phone should have exactly 10 digits");
-  }
-
   // find user with password included
   const user = await User.findOne({ email }).select(" -refreshToken");
   if (!user) {
