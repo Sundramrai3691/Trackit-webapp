@@ -66,7 +66,7 @@ const signUpUser = asyncHandler(async (req, res) => {
   }
 
   const token = crypto.randomBytes(32).toString("hex");
-
+     console.log('The token is ',token);
   // 3. Save email + credentials temporarily in EmailVerification collection
   await EmailVerification.create({
     userEmail: email,
@@ -93,12 +93,18 @@ const signUpUser = asyncHandler(async (req, res) => {
 });
 
 const verifyEmail = asyncHandler(async (req, res) => {
-  const { token } = req.body;
+  const  {token}  = req.body;
 
   const record = await EmailVerification.findOne({ token });
   if (!record || record.expiresAt < new Date()) {
     throw new ApiError(400, "Invalid or expired verification link");
   }
+
+    const isPresent = await User.findOne({ email: record.userEmail });
+
+     if(isPresent){
+      throw new ApiError(400,'User already exists');
+     }
 
   // Create the user in the main User collection
   const user = await User.create({
