@@ -149,10 +149,10 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
 // Login controller
 const loginUser = asyncHandler(async (req, res) => {
-  const { name, password, email, phone } = req.body;
+  const {  password, email } = req.body;
 
   if (
-    [name, password, email, phone].some(
+    [ password, email].some(
       (field) => !field || field.trim() === ""
     )
   ) {
@@ -170,7 +170,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
-  if (!isPasswordValid || phone !== user.phone || name !== user.name) {
+  if (!isPasswordValid) {
     throw new ApiError(401, "Credentials given are wrong");
   }
 
