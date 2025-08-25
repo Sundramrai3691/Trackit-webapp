@@ -13,7 +13,7 @@ import { sendEmail } from "../utils/emails.js";
 import { Otp } from "../models/otp.modles.js";
 import { EmailVerification } from "../models/EmailVerification.models.js";
 import crypto from "crypto";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 const options = {
   httpOnly: true,
