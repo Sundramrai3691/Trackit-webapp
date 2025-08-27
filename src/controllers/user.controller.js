@@ -338,9 +338,9 @@ const postItem = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Failed to create item");
   }
   
-  // BoltPatch: Use notify utility for better error handling
+  // BoltPatch: Emit notification for new item
   try {
-    notifyItemCreated(createdItem);
+    emitNotification('newItemPosted', createdItem);
   } catch (err) {
     console.warn('Failed to emit new item notification:', err.message);
   }
@@ -400,9 +400,9 @@ const deletePosts = asyncHandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, null, "Item not found"));
   }
 
-  // BoltPatch: Use notify utility for better error handling
+  // BoltPatch: Emit notification for deleted item
   try {
-    notifyItemDeleted(deletedItem._id);
+    emitNotification('itemDeleted', deletedItem._id);
   } catch (err) {
     console.warn('Failed to emit delete notification:', err.message);
   }

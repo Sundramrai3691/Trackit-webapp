@@ -18,11 +18,12 @@ import {
 
 router.route("/signUp").post(signUpUser);
 router.route("/login").post(loginUser);
+// BoltPatch: ensure verify route exists and is public
+router.route("/verify-email").post(verifyEmail);
 router.route("/auth/refreshAccessToken").post(refreshAccessToken);
 router.route("/logout").post(verifyjwt, logoutUser);
 router.route("/forgot-password").post(verifyjwt, forgotPassword);
 router.route("/password-reset").put(verifyjwt, upload.none(), passwordReset);
-router.route("/verify-email").post(verifyEmail)
 router.route("/postItems").post(
   verifyjwt,
   upload.fields([

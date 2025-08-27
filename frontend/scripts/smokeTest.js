@@ -1,5 +1,5 @@
-// BoltPatch: Smoke test script to verify API endpoints
-const axios = require("axios");
+// BoltPatch: Enhanced smoke test script
+import axios from "axios";
 
 const API_BASE = process.env.VITE_API_BASE || "http://localhost:4000";
 const TEST_TOKEN = process.env.TEST_TOKEN; // Optional: provide a valid token for authenticated tests

@@ -1,14 +1,14 @@
-// BoltPatch: Updated routeMap to match backend routes exactly
+// BoltPatch: centralized routes; edit here if backend differs
 const BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 
 export default {
   auth: {
-    login: `${BASE}/api/v1/users/login`,
     register: `${BASE}/api/v1/users/signUp`,
-    verifyEmail: `${BASE}/api/v1/users/verify-email`,
+    login: `${BASE}/api/v1/users/login`,
+    verify: `${BASE}/api/v1/users/verify-email`,
+    refresh: `${BASE}/api/v1/users/auth/refreshAccessToken`,
     me: `${BASE}/api/v1/users/profile`,
     logout: `${BASE}/api/v1/users/logout`,
-    refreshToken: `${BASE}/api/v1/users/auth/refreshAccessToken`,
     forgotPassword: `${BASE}/api/v1/users/forgot-password`,
     resetPassword: `${BASE}/api/v1/users/password-reset`,
   },
@@ -20,6 +20,7 @@ export default {
     foundByCategory: (category) => `${BASE}/api/v2/found-items/${category}`,
     create: `${BASE}/api/v1/users/postItems`,
     delete: `${BASE}/api/v1/users/profile/delete`,
+    item: (id) => `${BASE}/api/v2/items/${id}`
   },
   socket: BASE,
 };

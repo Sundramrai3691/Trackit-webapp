@@ -1,7 +1,17 @@
-// BoltPatch: Complete itemsService implementation with proper multipart handling
+// BoltPatch: Complete itemsService implementation
 import api from './api';
 import routeMap from './routeMap';
 
+// BoltPatch: Individual service functions
+export const getItems = (params) => api.get(routeMap.items.list, { params }).then(r => r.data);
+export const getItem = (id) => api.get(routeMap.items.item(id)).then(r => r.data);
+export const createItem = (formData) => api.post(routeMap.items.create, formData, { 
+  headers: { "Content-Type": "multipart/form-data" } 
+}).then(r => r.data);
+export const updateItem = (id, data) => api.put(routeMap.items.item(id), data).then(r => r.data);
+export const deleteItem = (id) => api.delete(routeMap.items.delete + `?itemId=${id}`).then(r => r.data);
+
+// BoltPatch: Enhanced itemsService object
 export const itemsService = {
   async getLostItems() {
     const response = await api.get(routeMap.items.lost);
@@ -24,11 +34,8 @@ export const itemsService = {
   },
 
   async createItem(formData) {
-    // BoltPatch: Ensure proper multipart/form-data headers
     const response = await api.post(routeMap.items.create, formData, {
-      headers: { 
-        'Content-Type': 'multipart/form-data'
-      }
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   },
@@ -38,15 +45,15 @@ export const itemsService = {
     return response.data;
   },
 
-  // BoltPatch: Additional helper methods
   async getItems(params = {}) {
     const response = await api.get(routeMap.items.list, { params });
     return response.data;
   },
 
   async getItem(id) {
-    // Note: Backend doesn't have individual item endpoint, using list for now
-    const response = await api.get(`${routeMap.items.list}/${id}`);
+    const response = await api.get(routeMap.items.item(id));
     return response.data;
   }
 };
+
+export default { getItems, getItem, createItem, updateItem, deleteItem };

@@ -3,6 +3,8 @@ import { Item } from "../models/Items.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/users.models.js";
+// BoltPatch: Add notification utility
+import { emitNotification } from "../utils/notify.js";
 
 const lostItems = asyncHandler(async (req, res) => {
   const user = req?.user;

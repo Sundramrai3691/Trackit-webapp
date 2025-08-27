@@ -8,4 +8,7 @@ const storage = multer.diskStorage({
   }
 })
 
- export const upload = multer({ storage: storage });
+export const upload = multer({ storage: storage });
+
+// BoltPatch: Add uploadArray for multiple images
+export const uploadArray = multer({ storage: storage }).array('images', 6);

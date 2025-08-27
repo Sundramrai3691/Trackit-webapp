@@ -51,4 +51,26 @@ const uploadBuffer = (buffer, options = {}) => {
 };
 
 export {uploadonCloudinary}
+
+// BoltPatch: Add buffer upload helper for multer memory storage
+const uploadBuffer = (buffer, options = {}) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "auto",
+        folder: options.folder || "trackit",
+        ...options
+      },
+      (error, result) => {
+        if (error) {
+          console.error("Cloudinary upload error:", error);
+          return reject(error);
+        }
+        resolve(result);
+      }
+    );
+    stream.end(buffer);
+  });
+};
+
 export {uploadBuffer}

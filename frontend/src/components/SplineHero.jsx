@@ -16,8 +16,7 @@ const Spline = React.lazy(() => import("@splinetool/react-spline"));
 export default function SplineHero({ sceneUrl }) {
   const [errored, setErrored] = useState(false);
 
-  // Public example scene (works as a live demo). Replace this with your own scene export.
-  // TODO: Replace DEFAULT_SCENE_URL with your exported Spline public URL.
+  // BoltPatch: Working default scene URL
   const DEFAULT_SCENE_URL =
     "https://prod.spline.design/LEvjG3OETYd2GsRw/scene.splinecode";
 

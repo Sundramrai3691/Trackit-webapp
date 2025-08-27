@@ -14,25 +14,23 @@ const io = new Server(server, {
   },
 });
 
-// BoltPatch: Add JWT authentication middleware for socket connections
-io.use((socket, next) => {
-  const token = socket.handshake.auth && socket.handshake.auth.token;
-  if (!token) {
+// BoltPatch: Enhanced JWT authentication middleware for socket connections
+io.use((socket, next) => { 
+  const token = socket.handshake.auth?.token; 
+  if(!token) {
     console.log("Socket connection without token - allowing anonymous access");
-    return next();
+    return next(); 
   }
-  
-  try {
+  try { 
     const cleanToken = token.replace(/^Bearer\s+/i, "");
-    const decoded = jwt.verify(cleanToken, process.env.ACCESS_TOKEN_SECRET);
-    socket.user = decoded;
+    const decoded = jwt.verify(cleanToken, process.env.ACCESS_TOKEN_SECRET); 
+    socket.user = decoded; 
     console.log("Socket authenticated for user:", decoded.id);
-    return next();
-  } catch (err) {
-    console.warn("Socket auth failed:", err.message);
-    // Allow connection but no user attached
-    return next();
-  }
+    next(); 
+  } catch(e) { 
+    console.warn("Socket auth failed:", e.message);
+    next(); 
+  } 
 });
 
 io.on("connection", (socket) => {

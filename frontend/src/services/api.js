@@ -1,3 +1,4 @@
+// BoltPatch: central axios instance with optional refresh support
 import axios from "axios";
 import routeMap from "./routeMap";
 
@@ -6,31 +7,20 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 const api = axios.create({
   baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
-  withCredentials: true,
+  withCredentials: true
 });
 
-/**
- * Token helpers:
- * - access token stored in localStorage.token (access)
- * - refresh token stored in localStorage.refreshToken (refresh)
- *
- * Request interceptor attaches access token.
- * Response interceptor attempts refresh on 401 and retries original request once.
- */
+// BoltPatch: attach token
+api.interceptors.request.use((cfg) => {
+  const token = localStorage.getItem("token");
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+}, (err) => Promise.reject(err));
 
-api.interceptors.request.use(
-  (cfg) => {
-    const token = localStorage.getItem("token");
-    if (token) cfg.headers.Authorization = `Bearer ${token}`;
-    return cfg;
-  },
-  (err) => Promise.reject(err)
-);
-
+// BoltPatch: Enhanced response interceptor with refresh logic
 let isRefreshing = false;
 let refreshQueue = [];
 
-/** helper to process queued requests after refresh */
 const processQueue = (error, token = null) => {
   refreshQueue.forEach((prom) => {
     if (error) prom.reject(error);
@@ -53,7 +43,6 @@ api.interceptors.response.use(
     ) {
       // Avoid infinite loop
       if (isRefreshing) {
-        // queue
         return new Promise((resolve, reject) => {
           refreshQueue.push({ resolve, reject });
         }).then((token) => {
@@ -71,8 +60,7 @@ api.interceptors.response.use(
 
         // Call refresh endpoint
         const resp = await axios.post(
-          routeMap.auth.refreshToken ||
-            `${API_BASE}/api/v1/users/auth/refreshAccessToken`,
+          routeMap.auth.refresh,
           {},
           { withCredentials: true }
         );
@@ -92,7 +80,6 @@ api.interceptors.response.use(
       } catch (err) {
         processQueue(err, null);
         isRefreshing = false;
-        // logout client side
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         window.location.href = "/auth/login";

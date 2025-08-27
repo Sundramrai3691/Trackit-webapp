@@ -62,7 +62,7 @@ export default function ItemForm({ onSubmit, loading = false }) {
 
     // BoltPatch: Use 'ImageTrackList' field name to match backend expectation
     images.forEach(image => {
-      formData.append('ImageTrackList', image);
+      formData.append('images', image);
     });
 
     onSubmit(formData);
