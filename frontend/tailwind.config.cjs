@@ -16,7 +16,8 @@ module.exports = {
         glass: {
           light: 'rgba(255, 255, 255, 0.1)',
           dark: 'rgba(0, 0, 0, 0.1)',
-        }
+        },
+        border: '#E5E7EB', // ✅ add this line
       },
       backdropBlur: {
         xs: '2px',

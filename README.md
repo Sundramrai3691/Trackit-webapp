@@ -1,9 +1,9 @@
-
 # TrackIt – Full Stack (Node.js backend + React frontend)
 
 This package contains your original **backend** (unpacked from the zip) and a new **React** frontend (Vite).
 
 ## Structure
+
 ```
 TrackIt/
 ├── backend/    # your uploaded backend (unmodified)
@@ -13,16 +13,18 @@ TrackIt/
 ## Quick Start
 
 ### 1) Backend
+
 ```bash
 cd src
 npm install
 npm run dev
-# Backend expected on port 3000
+# Backend expected on port 4000
 ```
 
 If your backend uses a different command or port, update it accordingly.
 
 ### 2) Frontend
+
 ```bash
 cd frontend
 npm install
@@ -30,12 +32,15 @@ npm run dev
 ```
 
 The frontend reads the API base URL from `.env`:
+
 ```
-VITE_API_BASE=http://localhost:3000
+VITE_API_BASE=http://localhost:4000
 ```
+
 Change it if your backend runs elsewhere.
 
 ### 3) Verification (BoltPatch)
+
 ```bash
 # Run smoke tests to verify API endpoints
 cd frontend
@@ -43,6 +48,7 @@ node scripts/smokeTest.js
 ```
 
 ## Auto-detected Endpoints
+
 The system uses these main endpoints:
 
 - **Authentication**: `/api/v1/users/login`, `/api/v1/users/signUp`, `/api/v1/users/profile`
@@ -59,6 +65,7 @@ The system uses these main endpoints:
 - ✅ **Smoke Tests**: Automated endpoint verification script
 
 ## Notes
+
 - Token support: if `localStorage.token` is set, it will be sent as `Authorization: Bearer <token>`.
 - Refresh tokens are stored in `localStorage.refreshToken` and used automatically.
 - Add forms or CRUD UIs by editing/adding components in `src/`.

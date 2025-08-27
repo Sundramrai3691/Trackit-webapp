@@ -40,21 +40,24 @@ src/
 
 ## Environment Variables
 
-- `VITE_API_BASE`: Backend API base URL (default: http://localhost:3000)
+- `VITE_API_BASE`: Backend API base URL (default: http://localhost:4000)
 
 ## BoltPatch: Verification Steps
 
 ### Quick Start Verification
 
 1. **Start Backend** (Terminal 1):
+
    ```bash
    cd backend  # or src/
    npm install
    npm run dev
    ```
-   Expected: "Server running on port 3000" and socket connection logs
+
+   Expected: "Server running on port 4000" and socket connection logs
 
 2. **Start Frontend** (Terminal 2):
+
    ```bash
    cd frontend
    npm install
@@ -62,6 +65,7 @@ src/
    # Edit .env if backend runs on different port
    npm run dev
    ```
+
    Expected: Frontend available at http://localhost:5173
 
 3. **Run Smoke Tests** (Terminal 3):

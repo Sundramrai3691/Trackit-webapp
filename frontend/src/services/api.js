@@ -1,12 +1,12 @@
 import axios from "axios";
 import routeMap from "./routeMap";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 
 const api = axios.create({
   baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
-  withCredentials: true
+  withCredentials: true,
 });
 
 /**
@@ -18,18 +18,21 @@ const api = axios.create({
  * Response interceptor attempts refresh on 401 and retries original request once.
  */
 
-api.interceptors.request.use((cfg) => {
-  const token = localStorage.getItem("token");
-  if (token) cfg.headers.Authorization = `Bearer ${token}`;
-  return cfg;
-}, (err) => Promise.reject(err));
+api.interceptors.request.use(
+  (cfg) => {
+    const token = localStorage.getItem("token");
+    if (token) cfg.headers.Authorization = `Bearer ${token}`;
+    return cfg;
+  },
+  (err) => Promise.reject(err)
+);
 
 let isRefreshing = false;
 let refreshQueue = [];
 
 /** helper to process queued requests after refresh */
 const processQueue = (error, token = null) => {
-  refreshQueue.forEach(prom => {
+  refreshQueue.forEach((prom) => {
     if (error) prom.reject(error);
     else prom.resolve(token);
   });
@@ -43,7 +46,11 @@ api.interceptors.response.use(
     if (!originalRequest) return Promise.reject(error);
 
     // If unauthorized and not already retried
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       // Avoid infinite loop
       if (isRefreshing) {
         // queue
@@ -63,8 +70,14 @@ api.interceptors.response.use(
         if (!refreshToken) throw new Error("No refresh token available");
 
         // Call refresh endpoint
-        const resp = await axios.post(routeMap.auth.refreshToken || `${API_BASE}/api/v1/users/auth/refreshAccessToken`, {}, { withCredentials: true });
-        const newAccessToken = resp.data?.data?.accessToken || resp.data?.accessToken;
+        const resp = await axios.post(
+          routeMap.auth.refreshToken ||
+            `${API_BASE}/api/v1/users/auth/refreshAccessToken`,
+          {},
+          { withCredentials: true }
+        );
+        const newAccessToken =
+          resp.data?.data?.accessToken || resp.data?.accessToken;
 
         if (newAccessToken) {
           localStorage.setItem("token", newAccessToken);

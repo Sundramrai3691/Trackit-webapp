@@ -13,8 +13,7 @@ const app = express();
 
 // Security and CORS
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  origin: process.env.CORS_ORIGIN ,
   credentials: true
 }));
 

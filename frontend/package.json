@@ -14,7 +14,8 @@
     "react-router-dom": "^6.14.1",
     "axios": "^1.4.0",
     "socket.io-client": "^4.7.2",
-    "@splinetool/react-spline": "^1.1.0",
+    "@splinetool/react-spline": "2.2.6",
+    "@splinetool/runtime": "1.4.5",
     "framer-motion": "^10.12.16",
     "zustand": "^4.4.1",
     "react-hook-form": "^7.46.0",
@@ -22,7 +23,7 @@
     "yup": "^1.2.0",
     "react-infinite-scroll-component": "^6.1.0",
     "react-dropzone": "^14.2.3",
-    "react-leaflet": "^4.3.1",
+    "react-leaflet": "^4.2.1",
     "leaflet": "^1.9.4",
     "recharts": "^2.5.0",
     "lucide-react": "^0.275.0"
