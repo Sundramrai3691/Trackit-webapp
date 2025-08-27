@@ -13,6 +13,7 @@ import { sendEmail } from "../utils/emails.js";
 import { Otp } from "../models/otp.modles.js";
 import { EmailVerification } from "../models/EmailVerification.models.js";
 import crypto from "crypto";
+import bcrypt from "bcrypt";
 
 const options = {
   httpOnly: true,
@@ -65,6 +66,7 @@ const signUpUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User already registered");
   }
 
+  
   const token = crypto.randomBytes(32).toString("hex");
 
   // 3. Save email + credentials temporarily in EmailVerification collection
@@ -94,11 +96,22 @@ const signUpUser = asyncHandler(async (req, res) => {
 
 const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.body;
-
-  const record = await EmailVerification.findOne({ token });
+   console.log("Backend received token:", token);
+  if (!token) {
+    throw new ApiError(400, "Verification token missing");
+  }
+const record = await EmailVerification.findOne({ token });
   if (!record || record.expiresAt < new Date()) {
     throw new ApiError(400, "Invalid or expired verification link");
   }
+
+
+  
+    const isPresent = await User.findOne({ email: record.userEmail });
+
+     if(isPresent){
+      throw new ApiError(400,'User already exists');
+     }
 
   // Create the user in the main User collection
   const user = await User.create({
@@ -122,22 +135,19 @@ const verifyEmail = asyncHandler(async (req, res) => {
   res
     .status(201)
     .json(new ApiResponse(201, createdUser, "User created successfully"));
+  
 });
 
 // Login controller
 const loginUser = asyncHandler(async (req, res) => {
-  const { name, password, email, phone } = req.body;
+  const {  password, email } = req.body;
 
   if (
-    [name, password, email, phone].some(
+    [ password, email].some(
       (field) => !field || field.trim() === ""
     )
   ) {
     throw new ApiError(400, "All fields are required");
-  }
-
-  if (!/^\d{10}$/.test(phone)) {
-    throw new ApiError(400, "Phone should have exactly 10 digits");
   }
 
   // find user with password included
@@ -147,7 +157,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
-  if (!isPasswordValid || phone !== user.phone || name !== user.name) {
+  if (!isPasswordValid) {
     throw new ApiError(401, "Credentials given are wrong");
   }
 
@@ -160,6 +170,8 @@ const loginUser = asyncHandler(async (req, res) => {
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
+
+  console.log("user logged successfully");
 
   res
     .status(200)

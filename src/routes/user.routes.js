@@ -16,9 +16,8 @@ import {
 
 // user router
 
-router.route("/signUp").post(upload.none(), signUpUser);
-router.route("/verify-email").post(verifyEmail);
-router.route("/login").post(upload.none(), loginUser);
+router.route("/signUp").post(signUpUser);
+router.route("/login").post(loginUser);
 router.route("/auth/refreshAccessToken").post(refreshAccessToken);
 router.route("/logout").post(verifyjwt, logoutUser);
 router.route("/forgot-password").post(verifyjwt, forgotPassword);
